@@ -84,6 +84,7 @@ neo4j_transaction_t *neo4j_begin_tx(neo4j_connection_t *connection,
 int begin_callback(void *cdata, neo4j_message_type_t type, const neo4j_value_t *argv, uint16_t argc)
 {
   assert(cdata != NULL);
+  assert(type != NULL);
   assert(argc == 0 || argv != NULL);
   neo4j_transaction_t *tx = (neo4j_transaction_t *) cdata;
 
