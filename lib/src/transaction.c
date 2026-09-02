@@ -515,7 +515,7 @@ const char *neo4j_tx_failure_message(neo4j_transaction_t *tx)
   if (neo4j_is_null(tx->failure_message)) {
     return "";
   }
-  char buf[128];
+  static thread_local char buf[128];
   return neo4j_string_value(tx->failure_message, buf, 128);
 }
 
@@ -525,7 +525,7 @@ const char *neo4j_tx_commit_bookmark(neo4j_transaction_t *tx)
   if (neo4j_is_null(tx->commit_bookmark)) {
     return NULL;
   }
-  char buf[128];
+  static thread_local char buf[128];
   return neo4j_string_value(tx->commit_bookmark, buf, 128);
 }
 

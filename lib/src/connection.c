@@ -1052,9 +1052,14 @@ int receive_responses(neo4j_connection_t *connection, const unsigned int *condit
         }
         if (result < 0)
         {
+	    // Initialize before neo4j_string_value: if argv[0] is not a map, or lacks "code"/"message", neo4j_map_get
+	    // yields neo4j_null and neo4j_string_value returns NULL WITHOUT writing the buffer, so the %s trace below
+	    // would read uninitialized stack. A leading NUL keeps the trace safe.
 	    char code[128];
+	    code[0] = '\0';
 	    neo4j_string_value(neo4j_map_get(argv[0],"code"),code,sizeof(code));
 	    char msg[256];
+	    msg[0] = '\0';
 	    neo4j_string_value(neo4j_map_get(argv[0],"message"),msg,sizeof(msg));
 	    connection->failed = true;
 	    neo4j_log_trace(connection->logger,
