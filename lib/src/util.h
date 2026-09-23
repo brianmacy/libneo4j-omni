@@ -79,6 +79,13 @@
 #define ignore_unused_result(func) if (func) { }
 
 
+#ifdef _MSC_VER
+// MSVC's C <stdlib.h> defines `min`/`max` as function-like macros (NOMINMAX only affects <windows.h>),
+// which turns the inline definitions below into a syntax error (C2059). They are not used by this code.
+#undef min
+#undef max
+#endif
+
 /**
  * Determine the minimum of two integers.
  *
