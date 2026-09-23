@@ -20,7 +20,9 @@
 #include "util.h"
 #include <assert.h>
 #include <stddef.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 
 struct buffering_iostream {

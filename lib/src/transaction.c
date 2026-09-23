@@ -26,8 +26,12 @@
 #include <assert.h>
 #include <string.h>
 #include <stddef.h>
-#include <threads.h>
+#ifndef _WIN32
+#include <threads.h> /* thread_local; Win32: win32_compat.h */
+#endif
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 #include <stdio.h>
 
 neo4j_transaction_t *new_transaction(neo4j_config_t *config, neo4j_connection_t *connection, int timeout, const char *mode, const char *dbname);

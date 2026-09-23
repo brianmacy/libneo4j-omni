@@ -196,7 +196,11 @@ int neo4j_mkdir_p(const char *path)
         struct stat sb;
         if (stat(buf, &sb))
         {
+#ifdef _WIN32
+            if (errno != ENOENT || (_mkdir(buf) && errno != EEXIST))
+#else
             if (errno != ENOENT || (mkdir(buf, 0777) && errno != EEXIST))
+#endif
             {
                 goto cleanup;
             }

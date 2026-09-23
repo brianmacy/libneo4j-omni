@@ -35,6 +35,23 @@ unsigned long neo4j_current_thread_id(void);
 #define NEO4J_ONCE_INIT PTHREAD_ONCE_INIT
 #define neo4j_thread_once(c,r) pthread_once((c),(r))
 
+#elif defined(_WIN32)
+
+#include "win32_compat.h"
+
+/* SRWLOCK: non-recursive like the default pthread mutex, and needs no
+ * destruction. Only used by openssl.c's pre-1.1 locking callbacks. */
+#define neo4j_mutex_t SRWLOCK
+#define neo4j_mutex_init(n) (InitializeSRWLock(n), 0)
+#define neo4j_mutex_lock(n) AcquireSRWLockExclusive(n)
+#define neo4j_mutex_unlock(n) ReleaseSRWLockExclusive(n)
+#define neo4j_mutex_destroy(n) ((void)(n))
+
+#define neo4j_once_t INIT_ONCE
+#define NEO4J_ONCE_INIT INIT_ONCE_STATIC_INIT
+int neo4j_win32_thread_once(INIT_ONCE *once, void (*init_routine)(void));
+#define neo4j_thread_once(c,r) neo4j_win32_thread_once((c),(r))
+
 #else
 #error "No threading support found"
 #endif

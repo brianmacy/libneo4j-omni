@@ -22,7 +22,9 @@
 #include <string.h>
 #include <stdlib.h>
 #include <sys/types.h>
+#ifndef _WIN32
 #include <sys/uio.h>
+#endif
 
 
 #ifndef NDEBUG
@@ -114,6 +116,7 @@ size_t rb_appendv(ring_buffer_t *rb,
 }
 
 
+#ifndef _WIN32 /* fd readv/writev: no callers; not ported to Winsock */
 ssize_t rb_read(ring_buffer_t *rb, int fd, size_t nbytes)
 {
     struct iovec iov[2];
@@ -133,6 +136,7 @@ ssize_t rb_read(ring_buffer_t *rb, int fd, size_t nbytes)
     rb->used += n;
     return n;
 }
+#endif
 
 
 unsigned int rb_data_iovec(ring_buffer_t *rb, struct iovec iov[2],
@@ -300,6 +304,7 @@ size_t rb_extractv(ring_buffer_t *rb,
 }
 
 
+#ifndef _WIN32 /* fd readv/writev: no callers; not ported to Winsock */
 ssize_t rb_write(ring_buffer_t *rb, int fd, size_t nbytes)
 {
     struct iovec iov[2];
@@ -331,3 +336,4 @@ ssize_t rb_write(ring_buffer_t *rb, int fd, size_t nbytes)
 
     return n;
 }
+#endif

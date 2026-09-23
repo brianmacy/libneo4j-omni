@@ -22,8 +22,10 @@
 #include <assert.h>
 #include <ctype.h>
 #include <limits.h>
+#ifndef _WIN32
 #include <sys/file.h>
 #include <unistd.h>
+#endif
 
 #define NEO4J_KNOWN_HOSTS "known_hosts"
 #define NEO4J_MAX_FINGERPRINT_LENGTH 512
@@ -295,7 +297,11 @@ int update_stored_fingerprint(const char * restrict file,
     }
     out_stream = NULL;
 
+#ifdef _WIN32
+    if (neo4j_win32_rename(outfile, file))
+#else
     if (rename(outfile, file))
+#endif
     {
         neo4j_log_error(logger, "rename failed: %s",
                 neo4j_strerror(errno, ebuf, sizeof(ebuf)));
@@ -319,7 +325,11 @@ failure:
     }
     if (out_fd >= 0)
     {
+#ifdef _WIN32
+        _close(out_fd);
+#else
         close(out_fd);
+#endif
     }
     if (outfile != NULL)
     {

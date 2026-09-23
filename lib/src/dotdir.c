@@ -21,9 +21,13 @@
 #include <assert.h>
 #include <errno.h>
 #include <limits.h>
+#ifndef _WIN32
 #include <pwd.h>
+#endif
 #include <sys/types.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 
 #define NEO4J_DOT_DIR ".neo4j"
@@ -152,6 +156,18 @@ ssize_t homedir(char **buf, size_t *n)
     char *pwbuf = NULL;
 
     const char *hdir = getenv("HOME");
+#ifdef _WIN32
+    /* No passwd database: fall back to %USERPROFILE%. */
+    if (hdir == NULL)
+    {
+        hdir = getenv("USERPROFILE");
+    }
+    if (hdir == NULL)
+    {
+        errno = ENOENT;
+        goto cleanup;
+    }
+#else
     if (hdir == NULL)
     {
         ssize_t pwbufsize = sysconf(_SC_GETPW_R_SIZE_MAX);
@@ -181,10 +197,16 @@ ssize_t homedir(char **buf, size_t *n)
         }
         hdir = pwd.pw_dir;
     }
+#endif
 
     size_t hlen = strlen(hdir);
+#ifdef _WIN32
+    for (; hlen > 0 && (hdir[hlen-1] == '/' || hdir[hlen-1] == '\\'); --hlen)
+        ;
+#else
     for (; hlen > 0 && hdir[hlen-1] == '/'; --hlen)
         ;
+#endif
     if (buf != NULL)
     {
         if (*buf == NULL)

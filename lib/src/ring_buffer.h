@@ -18,8 +18,12 @@
 #define LIBRING_BUFFER_H
 
 #include <stdint.h>
+#ifdef _WIN32
+#include "win32_compat.h"
+#else
 #include <sys/uio.h>
 #include <unistd.h>
+#endif
 
 #if __GNUC__ > 3
 #define __librb_malloc __attribute__((malloc))
@@ -112,6 +116,7 @@ size_t rb_append(ring_buffer_t *rb, const void *src, size_t nbytes);
 size_t rb_appendv(ring_buffer_t *rb,
         const struct iovec *iov, unsigned int iovcnt);
 
+#ifndef _WIN32
 /**
  * Read bytes from a file descriptor and append to a buffer.
  *
@@ -121,6 +126,7 @@ size_t rb_appendv(ring_buffer_t *rb,
  * @return The number of bytes appended, or -1 on error (errno will be set).
  */
 ssize_t rb_read(ring_buffer_t * rb, int fd, size_t nbytes);
+#endif
 
 /**
  * Extract data from a ring buffer.
@@ -143,6 +149,7 @@ size_t rb_extract(ring_buffer_t *rb, void *dst, size_t nbytes);
 size_t rb_extractv(ring_buffer_t *rb,
         const struct iovec *iov, unsigned int iovcnt);
 
+#ifndef _WIN32
 /**
  * Extract data from a ring buffer and write to a file descriptor.
  *
@@ -152,6 +159,7 @@ size_t rb_extractv(ring_buffer_t *rb,
  * @return The number of bytes written, or -1 on error (errno will be set).
  */
 ssize_t rb_write(ring_buffer_t *rb, int fd, size_t nbytes);
+#endif
 
 /**
  * Obtain an I/O vector covering data stored in a ring buffer.

@@ -64,6 +64,32 @@ static inline bool neo4j_atomic_bool_get(neo4j_atomic_bool *b)
     return b->value;
 }
 
+#elif defined(_MSC_VER)
+
+#include "win32_compat.h"
+
+/* MSVC C has no <stdatomic.h> without /experimental:c11atomics; the
+ * Interlocked* intrinsics are full barriers, matching seq_cst. */
+typedef struct
+{
+    volatile LONG value;
+} neo4j_atomic_bool;
+
+static inline void neo4j_atomic_bool_init(neo4j_atomic_bool *b, bool v)
+{
+    b->value = v ? 1 : 0;
+}
+
+static inline bool neo4j_atomic_bool_set(neo4j_atomic_bool *b, bool v)
+{
+    return InterlockedExchange(&(b->value), v ? 1 : 0) != 0;
+}
+
+static inline bool neo4j_atomic_bool_get(neo4j_atomic_bool *b)
+{
+    return InterlockedCompareExchange(&(b->value), 0, 0) != 0;
+}
+
 #else
 #error Missing atomics implementation (stdatomic)
 #endif

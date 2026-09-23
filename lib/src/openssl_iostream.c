@@ -23,8 +23,10 @@
 #include <openssl/bio.h>
 #include <stddef.h>
 #include <sys/types.h>
+#ifndef _WIN32
 #include <sys/uio.h>
 #include <unistd.h>
+#endif
 
 
 struct openssl_iostream {

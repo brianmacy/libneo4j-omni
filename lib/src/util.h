@@ -17,16 +17,24 @@
 #ifndef NEO4J_UTIL_H
 #define NEO4J_UTIL_H
 
+#ifdef _WIN32
+#include "win32_compat.h"
+#else
 #include <arpa/inet.h>
+#endif
 #include <errno.h>
 #include <limits.h>
+#ifndef _WIN32
 #include <netdb.h>
+#endif
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
+#ifndef _WIN32
 #include <sys/uio.h>
 #include <sys/param.h>
+#endif
 
 
 /**

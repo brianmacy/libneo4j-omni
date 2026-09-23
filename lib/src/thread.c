@@ -25,4 +25,34 @@ unsigned long neo4j_current_thread_id(void)
     return (unsigned long)pthread_self();
 }
 
+#elif defined(_WIN32)
+
+unsigned long neo4j_current_thread_id(void)
+{
+    return (unsigned long)GetCurrentThreadId();
+}
+
+
+static BOOL CALLBACK once_trampoline(PINIT_ONCE once, PVOID param,
+        PVOID *context)
+{
+    (void)once;
+    (void)context;
+    void (*init_routine)(void) = (void (*)(void))(uintptr_t)param;
+    init_routine();
+    return TRUE;
+}
+
+
+int neo4j_win32_thread_once(INIT_ONCE *once, void (*init_routine)(void))
+{
+    if (!InitOnceExecuteOnce(once, once_trampoline,
+                (PVOID)(uintptr_t)init_routine, NULL))
+    {
+        errno = EINVAL;
+        return -1;
+    }
+    return 0;
+}
+
 #endif

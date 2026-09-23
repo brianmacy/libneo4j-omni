@@ -29,7 +29,25 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/types.h>
+#ifdef _WIN32
+/* Native Win32: there is no <sys/uio.h>. Supply only the two POSIX types
+ * this API exposes; every other shim is internal (win32_compat.h). */
+#include <time.h>
+#if defined(_MSC_VER) && !defined(_SSIZE_T_DEFINED)
+typedef intptr_t ssize_t;
+#define _SSIZE_T_DEFINED
+#endif
+#ifndef NEO4J_HAVE_STRUCT_IOVEC
+#define NEO4J_HAVE_STRUCT_IOVEC
+struct iovec
+{
+    void *iov_base;
+    size_t iov_len;
+};
+#endif
+#else
 #include <sys/uio.h>
+#endif
 
 #if __GNUC__ > 3
 #define __neo4j_const __attribute__((const))
@@ -50,6 +68,12 @@
 #define restrict __restrict
 #elif _MSC_VER >= 1500
 #define restrict __restrict
+#ifdef __cplusplus
+/* MSVC C++: undefined again at the end of this header, so the macro does
+ * not leak into the consumer (it would break `__declspec(restrict)` in the
+ * UCRT headers). */
+#define NEO4J_MSVC_UNDEF_RESTRICT
+#endif
 #else
 #define restrict
 #endif
@@ -58,7 +82,9 @@
 extern "C" {
 #endif
 
+#ifndef _MSC_VER
 #pragma GCC visibility push(default)
+#endif
 
 
 /**
@@ -3107,10 +3133,17 @@ int neo4j_u8cpwidth(int cp);
 int neo4j_u8cswidth(const char *s, size_t n);
 
 
+#ifndef _MSC_VER
 #pragma GCC visibility pop
+#endif
 
 #ifdef __cplusplus
 }
+#endif
+
+#ifdef NEO4J_MSVC_UNDEF_RESTRICT
+#undef restrict
+#undef NEO4J_MSVC_UNDEF_RESTRICT
 #endif
 
 #endif/*NEO4J_CLIENT_H*/

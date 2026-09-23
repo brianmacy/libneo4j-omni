@@ -24,7 +24,9 @@
 #include "memory.h"
 #include "metadata.h"
 #include "network.h"
-#include <threads.h>
+#ifndef _WIN32
+#include <threads.h> /* thread_local; Win32: win32_compat.h */
+#endif
 #ifdef HAVE_OPENSSL
 #include "openssl_iostream.h"
 #endif
@@ -33,7 +35,9 @@
 #include "transaction.h"
 #include "util.h"
 #include <assert.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 #ifndef __has_attribute
 #  define __has_attribute(x) 0  /* for GCC 4.8 and earlier */
@@ -416,7 +420,11 @@ failure:
     {
         neo4j_ios_close(ios);
     }
+#ifdef _WIN32
+    closesocket((SOCKET)fd);
+#else
     close(fd);
+#endif
     errno = errsv;
     return NULL;
 }

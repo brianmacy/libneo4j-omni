@@ -19,7 +19,9 @@
 #include "util.h"
 #include <assert.h>
 #include <limits.h>
+#ifndef _WIN32
 #include <unistd.h>
+#endif
 
 
 int neo4j_ios_read_all(neo4j_iostream_t *stream,

@@ -21,6 +21,9 @@
 #endif
 #include "thread.h"
 #include <errno.h>
+#ifdef _WIN32
+#include "win32_compat.h"
+#endif
 
 
 static void do_init(void);
@@ -64,6 +67,13 @@ int neo4j_client_cleanup(void)
 void do_init(void)
 {
     init_errno = 0;
+#ifdef _WIN32
+    if (neo4j_win32_socket_init())
+    {
+        init_errno = errno;
+        return;
+    }
+#endif
 #ifdef HAVE_OPENSSL
     if (neo4j_openssl_init())
     {
@@ -78,6 +88,12 @@ void do_cleanup(void)
     cleanup_errno = 0;
 #ifdef HAVE_OPENSSL
     if (neo4j_openssl_cleanup())
+    {
+        cleanup_errno = errno;
+    }
+#endif
+#ifdef _WIN32
+    if (neo4j_win32_socket_cleanup() && cleanup_errno == 0)
     {
         cleanup_errno = errno;
     }

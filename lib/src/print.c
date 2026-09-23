@@ -25,6 +25,15 @@
 #include <stdlib.h>
 #include <time.h>
 
+/* time_t is 64-bit but `long` is 32-bit on Win64 (LLP64). */
+#ifdef _WIN32
+#define NEO4J_TIME_T_FMT "%lld"
+#define NEO4J_TIME_T_ARG(t) ((long long)(t))
+#else
+#define NEO4J_TIME_T_FMT "%ld"
+#define NEO4J_TIME_T_ARG(t) t
+#endif
+
 #define BUFLEN (100)
 
 static ssize_t identifier_str(char *buf, size_t n, const neo4j_value_t *value);
@@ -1092,7 +1101,7 @@ ssize_t neo4j_date_str(const neo4j_value_t *value, char *buf, size_t n)
 	l = 10;
     }
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, " (");
-    l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, "%ld", ntmt);
+    l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, NEO4J_TIME_T_FMT, NEO4J_TIME_T_ARG(ntmt));
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, ")");
     if (buf) {
 	buf[minzu(n-1,l)] = '\0';
@@ -1143,7 +1152,7 @@ ssize_t neo4j_time_str(const neo4j_value_t *value, char *buf, size_t n)
     }
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, "%+03ld%02ld", offset/3600, (labs(offset) % 3600) / 60);
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, " (");
-    l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, "%ld", ntsp->tv_sec);
+    l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, NEO4J_TIME_T_FMT, NEO4J_TIME_T_ARG(ntsp->tv_sec));
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, ")");
     if (buf) {
 	buf[minzu(n-1,l)] = '\0';
@@ -1192,7 +1201,7 @@ ssize_t neo4j_localtime_str(const neo4j_value_t *value, char *buf, size_t n)
 	l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, "%s", frac+1);
     }
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, " (");
-    l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, "%ld", ntsp->tv_sec);
+    l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, NEO4J_TIME_T_FMT, NEO4J_TIME_T_ARG(ntsp->tv_sec));
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, ")");
     if (buf) {
 	buf[minzu(n-1,l)] = '\0';
@@ -1244,7 +1253,7 @@ ssize_t neo4j_datetime_str(const neo4j_value_t *value, char *buf, size_t n)
     }
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, "%+03ld%02ld", offset/3600, (labs(offset) % 3600) / 60);
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, " (");
-    l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, "%ld", ntsp->tv_sec-offset);
+    l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, NEO4J_TIME_T_FMT, NEO4J_TIME_T_ARG(ntsp->tv_sec-offset));
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, ")");
     if (buf) {
 	buf[minzu(n-1,l)] = '\0';
@@ -1293,7 +1302,7 @@ ssize_t neo4j_localdatetime_str(const neo4j_value_t *value, char *buf, size_t n)
 	l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, "%s", frac+1);
     }
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, " (");
-    l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, "%ld", ntsp->tv_sec);
+    l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, NEO4J_TIME_T_FMT, NEO4J_TIME_T_ARG(ntsp->tv_sec));
     l += snprintf(buf? buf+l : buf, (l<n)? n-l : 0, ")");
     if (buf) {
 	buf[minzu(n-1,l)] = '\0';

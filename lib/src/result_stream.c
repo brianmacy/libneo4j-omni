@@ -24,7 +24,9 @@
 #include "values.h"
 #include <assert.h>
 #include <stddef.h>
-#include <threads.h>
+#ifndef _WIN32
+#include <threads.h> /* thread_local; Win32: win32_compat.h */
+#endif
 
 #define NUM_XTRA_MAP_ENTS 6
 // making global to avoid disrupting the neo4j_run() signature
