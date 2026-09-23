@@ -26,7 +26,12 @@
 #include <assert.h>
 #include <string.h>
 #include <stddef.h>
-#ifndef _WIN32
+#if defined(__APPLE__)
+/* macOS libc ships no <threads.h>; `thread_local` is only a C11 spelling of _Thread_local. */
+#ifndef thread_local
+#define thread_local _Thread_local
+#endif
+#elif !defined(_WIN32)
 #include <threads.h> /* thread_local; Win32: win32_compat.h */
 #endif
 #ifndef _WIN32
