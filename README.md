@@ -290,6 +290,23 @@ $ sudo make install
 
 More detail about this workaround can be found via `brew info openssl`.
 
+### Native Windows (MSVC)
+
+On Windows the library (not the `neo4j-client` shell) is built as a static
+`neo4j-client.lib` with CMake; the autotools build is not used there. OpenSSL
+is located with CMake's `find_package(OpenSSL)`:
+
+```console
+> cmake -S . -B build -G Ninja -DCMAKE_BUILD_TYPE=Release -DOPENSSL_ROOT_DIR=C:\path\to\openssl
+> cmake --build build
+> cmake --install build --prefix C:\path\to\install
+```
+
+Use a clean checkout: the CMake build refuses to run if an autotools
+`config.h` or `lib/src/neo4j-client.h` is present in the source tree. The
+Windows-only sources are `lib/src/win32_compat.{h,c}` and
+`lib/src/config_win.h`; all other Windows changes are behind `#ifdef _WIN32`.
+
 
 Support
 -------
